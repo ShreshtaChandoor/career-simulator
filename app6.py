@@ -1,17 +1,12 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-
-# Page config
 st.set_page_config(page_title="Career Simulator Pro", layout="centered")
 
-# Title
+
 st.markdown("<h1 style='text-align: center; color: #4CAF50;'>🚀 Career Decision Simulator Pro</h1>", unsafe_allow_html=True)
 st.write("Answer a few questions and discover careers that fit *YOU*")
 
-# -----------------------------
-# 🎯 SECTION 1: PERSONALITY MCQs
-# -----------------------------
 
 st.header("🧠 Tell us about yourself")
 
@@ -30,9 +25,6 @@ risk_pref = st.slider("Risk Tolerance (low = safe career)", 1, 10)
 salary_weight = st.slider("Salary Importance 💰", 1, 10)
 demand_weight = st.slider("Job Demand Importance 📈", 1, 10)
 
-# -----------------------------
-# 📊 SECTION 2: CAREER DATA
-# -----------------------------
 
 data = {
     "Career": [
@@ -60,14 +52,12 @@ data = {
 
 df = pd.DataFrame(data)
 
-# -----------------------------
-# 🧠 SECTION 3: SCORING LOGIC
-# -----------------------------
 
 def match_score(row):
     score = 0
 
-    # Interest mapping
+    
+    
     if interest == "Technology 💻" and row["Category"] == "Technology":
         score += 20
     elif interest == "Business 💼" and row["Category"] == "Business":
@@ -79,7 +69,6 @@ def match_score(row):
     elif interest == "Government & Law ⚖️" and row["Category"] == "Government":
         score += 20
 
-    # Work style mapping
     if work_style == "Structured & Stable" and row["Risk"] <= 4:
         score += 10
     elif work_style == "Flexible & Dynamic" and row["Risk"] >= 5:
@@ -90,51 +79,27 @@ def match_score(row):
         score += 10
 
     return score
-
 df["MatchScore"] = df.apply(match_score, axis=1)
-
-# Final Score
 df["Final Score"] = (
     (df["Salary"] * salary_weight) +
     (df["Demand"] * demand_weight) -
     (df["Risk"] * risk_pref) +
     df["MatchScore"]
 )
-
-# -----------------------------
-# 📊 SECTION 4: RESULTS
-# -----------------------------
-
 st.header("📊 Career Results")
-
 st.dataframe(df.sort_values(by="Final Score", ascending=False))
-
 best = df.loc[df["Final Score"].idxmax()]
-
 st.success(f"🎯 Best Career for You: {best['Career']}")
-
-# -----------------------------
-# 📈 SECTION 5: VISUALIZATION
-# -----------------------------
-
 st.header("📈 Career Score Visualization")
-
 fig, ax = plt.subplots()
 ax.barh(df["Career"], df["Final Score"])
 ax.set_xlabel("Score")
 ax.set_title("Career Ranking")
-
 st.pyplot(fig)
-
-# -----------------------------
-# 💡 SECTION 6: FUN INSIGHT
-# -----------------------------
-
 st.info(f"""
 ✨ Based on your answers:
 - You prefer **{interest}**
 - Your style is **{work_style}**
 - Risk tolerance: **{risk_pref}/10**
-
 This is why **{best['Career']}** suits you best!
 """)
